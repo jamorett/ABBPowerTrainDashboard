@@ -14,11 +14,7 @@ st.set_page_config(page_title="ABB Powertrain Dashboard", layout="wide", initial
 # ---------------------------------------------------------
 
 # Inicializar manejador de cookies
-@st.cache_resource(experimental_allow_widgets=True)
-def get_cookie_manager():
-    return stx.CookieManager()
-
-cookie_manager = get_cookie_manager()
+cookie_manager = stx.CookieManager(key="ia_cookie_manager")
 
 # Verificar estado de sesión y cookies
 auth_cookie = cookie_manager.get(cookie="abb_dashboard_auth")
