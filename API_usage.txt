@@ -1,0 +1,1159 @@
+mira a continuacion tienes una lista de todos los request get y post que se pueden hacer, para que inclusive nos ayudemos con uno de ellos para saber todos los assetId y abarcar a todos los equipos:
+
+AssetCondition
+Request
+https://api.powertrain.abb.com/api/analytics/Analytics/Condition/History/{assetId}[?startTime][&endTime]
+
+{
+    "assetId": 0,
+    "currentOverallCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+    "KPIs": [{
+        "name": "string",
+        "currentCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+        "unit": "string",
+        "unitGroupId": 0,
+        "startTime": "string",
+        "endTime": "string",
+        "valueType": "Timeseries, Median",
+        "minType": "Percentile10",
+        "maxType": "Percentile90",
+        "trend": [{
+            "timestamp": "string",
+            "value": 0,
+            "min": 0,
+            "max": 0
+        }],
+        "conditionTrends": [{
+            "type": "WarningLimit, ErrorLimit, Condition, Percentile10, Percentile90",
+            "values": [{
+                "timestamp": "string",
+                "valueDouble": 0,
+                "valueString": "Poor, Tolerable, Good, Unknown, Unsupported, Alarm, Alert"
+            }]
+        }],
+        "conditionEvents": [{
+            "timestamp": "string",
+            "oldCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+            "newCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+            "oldOverallCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+            "newOverallCondition": "Poor, Tolerable, Good, Unknown, Unsupported",
+            "kpiType": "Threshold, ShortTerm, LongTerm",
+            "trendValue": {}
+        }]
+    }]
+}
+
+
+Gets the histogram configuration for the specified asset.
+
+Gets the histogram configuration for the specified asset.
+Histogram
+Request
+https://api.powertrain.abb.com/api/analytics/Analytics/Histograms/Config/{assetId}
+
+{
+    "histograms": [{
+        "assetId": 0,
+        "histogramKey": "string",
+        "name": "string",
+        "binUnit": "string",
+        "binUnitGroupId": 0,
+        "aggregationUnit": "string",
+        "aggregationUnitGroupId": 0,
+        "precision": 0
+    }]
+}
+
+
+
+Gets the histogram data for the specified asset
+
+Gets the histogram data for the specified asset
+Histogram
+Request
+https://api.powertrain.abb.com/api/analytics/Analytics/Histograms/Data?from={from}&to={to}
+
+{
+    "histograms": [{
+        "assetId": 0,
+        "emptyHistogram": true,
+        "values": [{
+            "start": 0,
+            "end": 0,
+            "value": 0
+        }],
+        "config": {
+            "assetId": 0,
+            "histogramKey": "string",
+            "name": "string",
+            "binUnit": "string",
+            "binUnitGroupId": 0,
+            "aggregationUnit": "string",
+            "aggregationUnitGroupId": 0,
+            "precision": 0
+        }
+    }]
+}
+
+
+GetScatterConfig
+
+GetScatterConfig
+Scatter
+Request
+https://api.powertrain.abb.com/api/analytics/Analytics/Scatters/Config/{assetId}
+
+[{
+    "scatterKey": "string",
+    "name": "string",
+    "xUnit": "string",
+    "xUnitGroupId": 0,
+    "xPrecision": 0,
+    "xOffset": 0,
+    "yUnit": "string",
+    "yUnitGroupId": 0,
+    "yPrecision": 0,
+    "yOffset": 0,
+    "assetId": 0
+}]
+
+
+GetScatterData
+
+GetScatterData
+Scatter
+Request
+https://api.powertrain.abb.com/api/analytics/Analytics/Scatters/Data?from={from}&to={to}
+
+
+[{
+    "assetId": 0,
+    "values": [{
+        "x": 0,
+        "y": 0,
+        "timestamp": "string"
+    }],
+    "config": {
+        "scatterKey": "string",
+        "name": "string",
+        "xUnit": "string",
+        "xUnitGroupId": 0,
+        "xPrecision": 0,
+        "xOffset": 0,
+        "yUnit": "string",
+        "yUnitGroupId": 0,
+        "yPrecision": 0,
+        "yOffset": 0
+    }
+}]
+
+ Asset API
+Changelog
+Get all assets matching at least one filter criteria
+
+Get all assets filtered by organizations and/or sites and/or asset groups the user has access to. At least one organization, site or asset group must be specified. If all are specified the super-set is returned.
+Asset
+Request
+https://api.powertrain.abb.com/api/asset/Search
+
+
+Get all assets matching at least one filter criteria
+
+Get all assets filtered by organizations and/or sites and/or asset groups the user has access to. At least one organization, site or asset group must be specified. If all are specified the super-set is returned.
+Asset
+Request
+https://api.powertrain.abb.com/api/asset/Search
+
+
+Get asset details by its unique identifier
+
+Retrieve comprehensive information about an asset such as master data and additional asset properties including nameplate and factory information
+Asset
+Request
+https://api.powertrain.abb.com/api/asset/{id}
+
+{
+    "id": 0,
+    "legacyAssetId": "string",
+    "organization": {
+        "organizationId": 0,
+        "name": "string"
+    },
+    "site": {
+        "siteId": 0,
+        "name": "string"
+    },
+    "assetGroups": [{
+        "id": "string",
+        "name": "string"
+    }],
+    "assetType": "Drive",
+    "assetTypeDescription": "string",
+    "serialNumber": "string",
+    "name": "string",
+    "description": "string",
+    "connectionStatus": "Online",
+    "statusChangeDataReceivedTimestamp": "string",
+    "assetResponsible": "string",
+    "assetProperties": [{
+        "propertyName": "string",
+        "propertyKey": "string",
+        "propertyValue": "string",
+        "propertyDefaultUnit": "string",
+        "propertyDataType": "string",
+        "propertyPrecision": 0
+    }],
+    "gateway": {
+        "gatewayType": "string",
+        "gatewayId": 0,
+        "gatewaySerialNumber": "string"
+    },
+    "sensor": {
+        "sensorType": "string",
+        "sensorId": 0,
+        "sensorSerialNumber": "string"
+    },
+    "externalAssetReferenceId": "string",
+    "createdTimestamp": "string",
+    "fullTypeId": "string"
+}
+
+
+Retrive List of asset master data details by asset ids
+
+Retrieve comprehensive information about an assets such as master data and additional asset properties including nameplate and factory information
+Asset
+Request
+https://api.powertrain.abb.com/api/asset/List/GetDetails
+
+{
+    "assetsDetailsList": [{
+        "id": 0,
+        "legacyAssetId": "string",
+        "organization": {
+            "organizationId": 0,
+            "name": "string"
+        },
+        "site": {
+            "siteId": 0,
+            "name": "string"
+        },
+        "assetGroups": [{
+            "id": "string",
+            "name": "string"
+        }],
+        "assetType": "Drive",
+        "assetTypeDescription": "string",
+        "serialNumber": "string",
+        "name": "string",
+        "description": "string",
+        "connectionStatus": "Online",
+        "statusChangeDataReceivedTimestamp": "string",
+        "assetResponsible": "string",
+        "assetProperties": [{
+            "propertyName": "string",
+            "propertyKey": "string",
+            "propertyValue": "string",
+            "propertyDefaultUnit": "string",
+            "propertyDataType": "string",
+            "propertyPrecision": 0
+        }],
+        "gateway": {
+            "gatewayType": "string",
+            "gatewayId": 0,
+            "gatewaySerialNumber": "string"
+        },
+        "sensor": {
+            "sensorType": "string",
+            "sensorId": 0,
+            "sensorSerialNumber": "string"
+        },
+        "externalAssetReferenceId": "string",
+        "createdTimestamp": "string",
+        "fullTypeId": "string"
+    }]
+}
+
+
+Download the file
+
+Download the file
+Diagnostics
+Request
+https://api.powertrain.abb.com/api/diagnostics/DataLogger/{fileId}
+
+{
+    "type": "string",
+    "format": "binary",
+    "x-apim-inline": true
+}
+
+
+Download the file
+
+Download the file
+Diagnostics
+Request
+https://api.powertrain.abb.com/api/diagnostics/DriveParameters/Backup/{fileId}
+
+ Diagnostics API
+Changelog
+Download the file
+
+Download the file
+Diagnostics
+Request
+https://api.powertrain.abb.com/api/diagnostics/File/{fileId}
+
+ Diagnostics API
+Changelog
+Download the file as Sas Url
+
+Download the file as Sas Url
+Diagnostics
+Request
+https://api.powertrain.abb.com/api/diagnostics/File/{fileId}/DownloadUrl
+
+ Diagnostics API
+Changelog
+Search for the list asset files in the given time range and file type
+
+Get file details containing download Url for the given file identifier
+Diagnostics
+Request
+https://api.powertrain.abb.com/api/diagnostics/Files/Search
+
+
+Add a new comment to the specified event.
+
+Add a new comment to the specified event.
+Event
+Request
+https://api.powertrain.abb.com/api/event/Event/Comment
+
+{
+    "eventIds": [0],
+    "comment": "string",
+    "authorEmail": "string",
+    "closingReasonCode": "string",
+    "causeCode": "string",
+    "isInitialCause": true
+}
+
+
+Add an event.
+
+Add an event based on the provided data.
+Event
+Request
+https://api.powertrain.abb.com/api/event/Event
+
+{
+    "assetId": 0,
+    "severityCode": "string",
+    "timestamp": "string",
+    "message": "string"
+}
+
+
+Removes a comment.
+
+Removes a comment.
+Event
+Request
+https://api.powertrain.abb.com/api/event/Event/Comment/{eventCommentId}
+
+{
+    "type": "object",
+    "properties": {
+        "success": {
+            "type": "boolean"
+        }
+    },
+    "additionalProperties": false
+}
+
+
+Returns the list of comments for the specified event.
+
+Get all comments for the specified event.
+Event
+Request
+https://api.powertrain.abb.com/api/event/Event/{eventId}/Comments
+
+[{
+    "id": 0,
+    "text": "string",
+    "closingReasonCode": "string",
+    "causeCode": "string",
+    "authorEmail": "string",
+    "timestamp": "string",
+    "isInitialCause": true
+}]
+
+
+Search events.
+
+Search asset events by specified filters.
+Event
+Request
+https://api.powertrain.abb.com/api/event/Event/Search
+
+{
+    "type": "object",
+    "properties": {
+        "assetIds": {
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "format": "int64"
+            },
+            "nullable": true
+        },
+        "assetSerialNumbers": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "nullable": true
+        },
+        "timestampFrom": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+        },
+        "timestampTo": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+        },
+        "pageSize": {
+            "type": "integer",
+            "format": "int32"
+        },
+        "cursor": {
+            "type": "string",
+            "nullable": true
+        },
+        "severityCodes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "nullable": true
+        },
+        "statusCodes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "nullable": true
+        },
+        "causeCodes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "nullable": true
+        },
+        "hasComments": {
+            "type": "boolean",
+            "nullable": true
+        },
+        "hasDataLoggers": {
+            "type": "boolean",
+            "nullable": true
+        },
+        "hasBinaryLogger": {
+            "type": "boolean",
+            "nullable": true
+        },
+        "hasParameterBackup": {
+            "type": "boolean",
+            "nullable": true
+        },
+        "messageTextContains": {
+            "type": "string",
+            "nullable": true
+        }
+    },
+    "additionalProperties": false
+}
+
+
+Returns the list of event causes.
+
+Returns the list of event causes.
+EventCauses
+Request
+https://api.powertrain.abb.com/api/event/EventCauses
+
+{
+    "causes": [{
+        "code": "string",
+        "name": "string"
+    }]
+}
+
+
+Returns the list of event closing reasons.
+
+Returns the list of event closing reasons.
+EventClosingReason
+Request
+https://api.powertrain.abb.com/api/event/EventClosingReason
+
+{
+    "closingReasons": [{
+        "code": "string",
+        "name": "string",
+        "translationCode": "string"
+    }]
+}
+
+
+ FFT API
+Changelog
+ada80e8a1905c4fb328ff5dab3d028be659669ec76cde5efb77dd5a3944ca6cf
+FFTPublic
+Request
+https://api.powertrain.abb.com/api/fft/FFT/{assetId}/LastFFTFile
+
+{
+    "assetId": 0,
+    "sensorId": 0,
+    "timestamp": "string",
+    "hasBearingFaultFrequencies": true,
+    "hasHarmonics": true,
+    "hasSpeed": true,
+    "speed": 0,
+    "lineFrequency": 0,
+    "skinTemperature": 0,
+    "precision": 0,
+    "amplitudeMeasurementUnitGroupId": 0,
+    "frequencyMeasurementUnitGroupId": 0,
+    "fftType": "string",
+    "spectrum": "string",
+    "bearingFaultFrequencies": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0,
+        "bearingType": ["string"]
+    }],
+    "harmonics": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0
+    }],
+    "harmonicsHighestPeaks": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0
+    }],
+    "sensors": [{
+        "sensorType": "string",
+        "frequency": 0,
+        "maximumFrequency": 0,
+        "dataValues": [{
+            "sensorAxisName": "string",
+            "sensorAxisDataValues": [{
+                "frequency": 0,
+                "magnitude": 0
+            }]
+        }]
+    }]
+}
+
+ FFT API
+Changelog
+d23ba1671b32296b525af1afd58e9e5a064e07f1813f29bdda11aaa1f35a9f92
+FFTPublic
+Request
+https://api.powertrain.abb.com/api/fft/FFT/{assetId}/FFTFiles[?startTime][&endTime]
+
+{
+    "type": "object",
+    "properties": {
+        "assetId": {
+            "type": "integer",
+            "format": "int64"
+        },
+        "sensorId": {
+            "type": "integer",
+            "format": "int64"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "hasBearingFaultFrequencies": {
+            "type": "boolean"
+        },
+        "hasHarmonics": {
+            "type": "boolean"
+        },
+        "hasSpeed": {
+            "type": "boolean"
+        },
+        "speed": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+        },
+        "lineFrequency": {
+            "type": "number",
+            "format": "double"
+        },
+        "skinTemperature": {
+            "type": "number",
+            "format": "double"
+        }
+    },
+    "additionalProperties": false
+}
+
+ FFT API
+Changelog
+dc2aaaf40f3df29278af42e13b5d73cc4d5e9b277c85012da2be279d74da5d7c
+FFTPublic
+Request
+https://api.powertrain.abb.com/api/fft/FFT/{assetId}/GetDetails[?fftTimestamp]
+
+{
+    "assetId": 0,
+    "sensorId": 0,
+    "timestamp": "string",
+    "hasBearingFaultFrequencies": true,
+    "hasHarmonics": true,
+    "hasSpeed": true,
+    "speed": 0,
+    "lineFrequency": 0,
+    "skinTemperature": 0,
+    "precision": 0,
+    "amplitudeMeasurementUnitGroupId": 0,
+    "frequencyMeasurementUnitGroupId": 0,
+    "fftType": "string",
+    "spectrum": "string",
+    "bearingFaultFrequencies": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0,
+        "bearingType": ["string"]
+    }],
+    "harmonics": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0
+    }],
+    "harmonicsHighestPeaks": [{
+        "name": "string",
+        "value": 0,
+        "magnitude": 0
+    }],
+    "sensors": [{
+        "sensorType": "string",
+        "frequency": 0,
+        "maximumFrequency": 0,
+        "dataValues": [{
+            "sensorAxisName": "string",
+            "sensorAxisDataValues": [{
+                "frequency": 0,
+                "magnitude": 0
+            }]
+        }]
+    }]
+}
+
+
+Get webhook settings by id.
+
+Get webhook settings by id.
+Webhook
+Request
+https://api.powertrain.abb.com/api/notification/Webhook/Settings/{id}
+
+{
+    "id": 0,
+    "url": "string",
+    "secret": "string",
+    "signSecret": "string",
+    "email": "string",
+    "headers": [{
+        "key": "string",
+        "value": "string"
+    }],
+    "notificationTypes": ["string"]
+}
+
+ Sensor API
+Changelog
+Gets the sensor by identifier.
+
+Returns a specific sensor based on the provided identifier.
+Sensors
+Request
+https://api.powertrain.abb.com/api/sensor/Sensors/{id}
+
+{
+    "sensorId": 0,
+    "serialNumber": "string",
+    "sensorType": "string",
+    "sensorTypeDescription": "string",
+    "firmwareUpdate": {
+        "updateAvailable": true,
+        "updateEnforced": true,
+        "updateSensorTypeConfigId": "string"
+    },
+    "hardwareRevisionName": "string",
+    "hardwareRevisionId": "string",
+    "baseFirmwareVersion": "string",
+    "sensorState": "string",
+    "referenceId": 0,
+    "sensorFeatures": [{
+        "sensorFeatureId": 0,
+        "sensorId": 0,
+        "featureKeyName": "string",
+        "createdOn": "string",
+        "userEmail": "string",
+        "featureValue": "string",
+        "featureValueObject": {},
+        "featureDataType": "string",
+        "isVisible": true,
+        "featureDisplayName": "string"
+    }],
+    "configurationProfiles": [{
+        "configurationProfileId": 0,
+        "configurationProfileName": "string",
+        "sensorType": "string",
+        "assetType": "string",
+        "connectionData": "string",
+        "isVisible": true,
+        "minimumFirmwareVersion": "string",
+        "configurationProfileCode": "string",
+        "configurationProfileDescription": "string",
+        "allowMultipleProfileSelection": true
+    }],
+    "sensorProperties": [{
+        "sensorPropertyId": 0,
+        "sensorTypeConfigId": "string",
+        "sensorTypeName": "string",
+        "sensorPropertyKey": "string",
+        "sensorPropertyDisplayName": "string",
+        "sensorPropertyTextKey": "string",
+        "sensorPropertyDescription": "string",
+        "sensorPropertyDescriptionKey": "string",
+        "dataType": "string",
+        "values": [{
+            "value": "string",
+            "createdOn": "string"
+        }],
+        "isVisible": true,
+        "isApplicationEnabled": true,
+        "isSensorTypePropertyKey": true,
+        "isDataList": true
+    }],
+    "manufacturingBatch": "string"
+}
+
+ Sensor API
+Changelog
+Retrieves the historical data for a specified sensor based on the provided request parameters.
+
+This method requires the caller to be authenticated and authorized to access the specified sensor. Ensure that the sensorHistoryRequest is properly structured and contains valid data.
+Sensors
+Request
+https://api.powertrain.abb.com/api/sensor/Sensors/GetSensorHistory
+
+[{
+    "sensorId": 0,
+    "serialNumber": "string",
+    "sensorType": "string",
+    "sensorState": "string",
+    "assetId": 0,
+    "hardwareRevisionName": "string",
+    "hardwareRevisionId": "string",
+    "firmwareVersion": "string",
+    "baseFirmwareVersion": "string",
+    "userEmailAddress": "string",
+    "timestamp": "string"
+}]
+
+ Sensor API
+Changelog
+Searches sensors by passing filter object.
+
+Searches for sensors based on the provided filter criteria.
+Sensors
+Request
+https://api.powertrain.abb.com/api/sensor/Sensors/Search
+
+{
+    "serialNumbers": ["string"],
+    "sensorTypes": ["string"],
+    "sensorIds": [0],
+    "sensorStates": ["string"],
+    "hardwareRevisionNames": ["string"],
+    "firmwareVersions": ["string"],
+    "baseFirmwareVersions": ["string"],
+    "sensorConfigurationCodes": ["string"],
+    "pageNumber": 0,
+    "pageSize": 0
+}
+
+{
+    "sensorList": [{
+        "sensorId": 0,
+        "serialNumber": "string",
+        "sensorType": "string",
+        "sensorTypeDescription": "string",
+        "firmwareUpdate": {
+            "updateAvailable": true,
+            "updateEnforced": true,
+            "updateSensorTypeConfigId": "string"
+        },
+        "hardwareRevisionName": "string",
+        "hardwareRevisionId": "string",
+        "baseFirmwareVersion": "string",
+        "sensorState": "string",
+        "referenceId": 0,
+        "sensorFeatures": [{
+            "sensorFeatureId": 0,
+            "sensorId": 0,
+            "featureKeyName": "string",
+            "createdOn": "string",
+            "userEmail": "string",
+            "featureValue": "string",
+            "featureValueObject": {},
+            "featureDataType": "string",
+            "isVisible": true,
+            "featureDisplayName": "string"
+        }],
+        "configurationProfiles": [{
+            "configurationProfileId": 0,
+            "configurationProfileName": "string",
+            "sensorType": "string",
+            "assetType": "string",
+            "connectionData": "string",
+            "isVisible": true,
+            "minimumFirmwareVersion": "string",
+            "configurationProfileCode": "string",
+            "configurationProfileDescription": "string",
+            "allowMultipleProfileSelection": true
+        }],
+        "sensorProperties": [{
+            "sensorPropertyId": 0,
+            "sensorTypeConfigId": "string",
+            "sensorTypeName": "string",
+            "sensorPropertyKey": "string",
+            "sensorPropertyDisplayName": "string",
+            "sensorPropertyTextKey": "string",
+            "sensorPropertyDescription": "string",
+            "sensorPropertyDescriptionKey": "string",
+            "dataType": "string",
+            "values": [{
+                "value": "string",
+                "createdOn": "string"
+            }],
+            "isVisible": true,
+            "isApplicationEnabled": true,
+            "isSensorTypePropertyKey": true,
+            "isDataList": true
+        }],
+        "manufacturingBatch": "string"
+    }]
+}
+
+
+Provides timeseries configuration with sampling information for asset
+
+Provides timeseries configuration with sampling information for asset
+AssetConfig
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetConfig[?assetId][&assetSerialNumber]
+
+{
+    "type": "object",
+    "properties": {
+        "assetId": {
+            "type": "integer",
+            "description": "Id of the asset.",
+            "format": "int64",
+            "example": 123
+        },
+        "timeseries": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/AssetTimeseriesConfig"
+            },
+            "description": "Gets or Sets Timeseries"
+        }
+    },
+    "additionalProperties": false,
+    "description": "Request for Asset Config"
+}
+
+
+Provides timeseries configuration with sampling information for asset
+
+Provides timeseries configuration with sampling information for asset
+AssetConfig
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetConfig/{assetId}
+
+{
+    "assetId": 123,
+    "timeseries": [{
+        "timeseriesKey": "string",
+        "timeseriesName": "Power",
+        "samplingInterval": "string",
+        "samplingType": "string",
+        "appendCodeToTranslation": false,
+        "isPlottableToTrendChart": true,
+        "timeseriesPrecision": 0,
+        "dataType": "Double, Int, Bool, String, Bitfield, None, Unknown, DateTime",
+        "unit": "m",
+        "offset": 100
+    }]
+}
+
+ Timeseries API
+Changelog
+Gets the timeseries limits for asset
+
+Gets the the timeseries limits data as described by the parameters.
+AssetLimit
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetLimits[?assetId][&assetSerialNumber]
+
+{
+    "assetId": 123,
+    "timeseries": [{
+        "timeseriesKey": "power",
+        "displayName": "string",
+        "isTrend": true,
+        "isOffsetEnabled": true,
+        "isDefaultLimitEditable": true,
+        "isAddingCustomLimitsAllowed": true,
+        "minValue": 0,
+        "maxValue": 0,
+        "unit": "string",
+        "offset": 0,
+        "limits": [{
+            "limitId": 0,
+            "isDefault": true,
+            "limitType": "AbsoluteValue, TimeseriesReference",
+            "limitLevel": "Alert, Alarm",
+            "limitDirection": "UpperLimit, LowerLimit",
+            "limitValue": 0,
+            "isUserLimit": true
+        }]
+    }]
+}
+
+
+Gets the timeseries limits status for asset
+
+Gets the the timeseries limits status data as described by the parameters.
+AssetLimit
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetLimits/Status[?assetId][&assetSerialNumber]
+
+{
+    "assets": [{
+        "assetId": 123,
+        "timeseries": [{
+            "timeseriesKey": "power",
+            "limitDirection": "string",
+            "limitLevel": "string",
+            "timestamp": "string",
+            "isHealthParameter": true,
+            "timeseriesNameTextKey": "ABB.Drives.Timeseries.Signals.Power",
+            "timeseriesName": "Power",
+            "appendCodeToTranslation": false,
+            "isLimitTrendRelated": false
+        }]
+    }]
+}
+
+
+Gets the timeseries limits status for asset
+
+Gets the the timeseries limits status data as described by the parameters.
+AssetLimit
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetLimits/Status/{assetId}
+
+{
+    "assets": [{
+        "assetId": 123,
+        "timeseries": [{
+            "timeseriesKey": "power",
+            "limitDirection": "string",
+            "limitLevel": "string",
+            "timestamp": "string",
+            "isHealthParameter": true,
+            "timeseriesNameTextKey": "ABB.Drives.Timeseries.Signals.Power",
+            "timeseriesName": "Power",
+            "appendCodeToTranslation": false,
+            "isLimitTrendRelated": false
+        }]
+    }]
+}
+
+
+Gets the timeseries limits status for list of assets
+
+Gets the the timeseries limits status data as described by the parameters.
+AssetLimit
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetLimits/Status
+
+{
+    "assets": [{
+        "assetId": 123,
+        "timeseries": [{
+            "timeseriesKey": "power",
+            "limitDirection": "string",
+            "limitLevel": "string",
+            "timestamp": "string",
+            "isHealthParameter": true,
+            "timeseriesNameTextKey": "ABB.Drives.Timeseries.Signals.Power",
+            "timeseriesName": "Power",
+            "appendCodeToTranslation": false,
+            "isLimitTrendRelated": false
+        }]
+    }]
+}
+
+
+Puts the timeseries limits for asset
+
+Puts the the timeseries limits data as described by the parameters.
+AssetLimit
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/AssetLimits
+
+{
+    "assetId": 123,
+    "assetSerialNumber": "string",
+    "timeseries": [{
+        "timeseriesKey": "power",
+        "isTrend": true,
+        "offset": 0,
+        "resetToDefault": true,
+        "limits": [{
+            "limitId": 0,
+            "limitLevel": "string",
+            "limitDirection": "string",
+            "limitValue": 0,
+            "isUserLimit": true,
+            "eventEnabled": true,
+            "notificationEnabled": true,
+            "resetToDefault": true
+        }]
+    }]
+}
+
+
+Provides the status of timeseries exports triggered by current user for the given time range
+
+Provides the status of timeseries exports triggered by current user for the given time range
+Export
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/ExportStatus?from={from}&to={to}
+
+[{
+    "exportId": 0,
+    "requested": "string",
+    "assetId": 0,
+    "timeseriesKeys": ["string"],
+    "from": "string",
+    "to": "string",
+    "email": "string",
+    "started": "string",
+    "status": "Pending, InProgress, Finished, Aborted, Error",
+    "progress": 0,
+    "downloadLinks": ["string"],
+    "downloadLink": "string"
+}]
+
+
+Gets the the timeseries configuration per sensor
+
+Gets the the timeseries configuration per sensor. The sensorId is mandatory.
+SensorTimeseries
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/Sensor/Config?sensorId={sensorId}
+
+{
+    "timeseries": [{
+        "timeseriesKey": "power",
+        "timeseriesNameTextKey": "ABB.Drives.Timeseries.Signals.Power",
+        "timeseriesName": "Power",
+        "timeseriesDescriptionTextKey": "string",
+        "timeseriesPrecision": 0,
+        "dataType": "0",
+        "timeseriesUnitGroupID": 5,
+        "unit": "string",
+        "gatewayId": 123
+    }]
+}
+
+
+Gets the the timeseries data for sensor as specified
+
+Gets the the timeseries data for sensor as described by the parameters.
+SensorTimeseries
+Request
+https://api.powertrain.abb.com/api/timeseries/Timeseries/Sensor/TimeseriesData?from={from}&to={to}
+
+
+[{
+    "sensorId": 123,
+    "timeseries": {
+        "timeseriesKey": "01.02"
+    }
+}]
+
+
+
+[{
+    "SensorId": 123,
+    "GatewayId": 123,
+    "values": [{
+        "value": {},
+        "timestamp": "2023-01-01T11:00:00Z",
+        "quality": "Good"
+    }],
+    "config": {
+        "timeseriesKey": "power",
+        "timeseriesNameTextKey": "ABB.Drives.Timeseries.Signals.Power",
+        "timeseriesName": "Power",
+        "timeseriesDescriptionTextKey": "string",
+        "timeseriesDescription": "string",
+        "timeseriesLastValue": {},
+        "timeseriesLastValueUnrounded": {},
+        "timeseriesLastValueTimeStamp": "string",
+        "timeseriesLastValueQuality": "Good",
+        "timeseriesPrecision": 0,
+        "timeseriesCategory": "Operational",
+        "appendCodeToTranslation": false,
+        "timeseriesGroupCode": "trends",
+        "timeseriesUnitGroupID": 5,
+        "unit": "string",
+        "isPlottableToTrendChart": true,
+        "offset": 100,
+        "lowWarningThreshold": -100,
+        "lowWarningThresholdList": "-100",
+        "lowErrorThreshold": -100,
+        "lowErrorThresholdList": "-100",
+        "highWarningThreshold": 100,
+        "highWarningThresholdList": "100",
+        "highErrorThreshold": 100,
+        "highErrorThresholdList": "100",
+        "isLimitEditable": true,
+        "isDefaultLimitEditable": true,
+        "isAdditionalLimitAllowed": true
+    }
+}]
+

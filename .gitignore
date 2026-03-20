@@ -1,0 +1,27 @@
+# Archivos sensibles y variables de entorno
+.env
+keys.txt
+debug_events.json
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales (por si acaso)
+venv/
+.env/
+env/
+ENV/
+
+# Archivos de SO
+.DS_Store
+Thumbs.db
+
+# Logs y temporales
+*.log
+tmp_output*.txt
+error_log.txt
+out2.txt
+.gemini/
+powerbi_data/

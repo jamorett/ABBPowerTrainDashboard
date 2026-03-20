@@ -1,0 +1,117 @@
+[
+  [
+    "Motor Anomaly Detection",
+    [
+      "Kpi",
+      "Signal",
+      "Signal",
+      "Signal",
+      "Signal",
+      "Signal",
+      "Signal",
+      "Calculated Signal"
+    ]
+  ],
+  [
+    "Vibration RMS Axial",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ],
+  [
+    "Vibration RMS Axial (long term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration RMS Axial (short term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration RMS Tangential",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ],
+  [
+    "Vibration RMS Tangential (long term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration RMS Tangential (short term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration RMS Radial",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ],
+  [
+    "Vibration RMS Radial (long term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration RMS Radial (short term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Bearing condition",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ],
+  [
+    "Bearing condition (long term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Bearing condition (short term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Vibration Accel. P2P Radial",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ],
+  [
+    "Vibration Accel. P2P Radial (long term)",
+    [
+      "Kpi"
+    ]
+  ],
+  [
+    "Skin Temperature",
+    [
+      "Kpi",
+      "High Warning Threshold",
+      "High Error Threshold"
+    ]
+  ]
+]
