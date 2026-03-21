@@ -38,6 +38,22 @@ def add_notification(asset_id, asset_name, notif_type, message, severity="Warnin
         "timestamp": datetime.datetime.now().strftime("%H:%M | %d/%m")
     })
 
+def clear_floating_notifications():
+    """Limpia las notificaciones flotantes del DOM al cambiar de pestaña."""
+    import streamlit.components.v1 as components
+    import time
+    js = f"""
+    <script>
+    // {time.time()}
+    (function() {{
+        var p = window.parent;
+        var old = p.document.getElementById('ia-notif-root');
+        if (old) old.remove();
+    }})();
+    </script>
+    """
+    components.html(js, height=0)
+
 
 def check_persistent_breach(asset_id, asset_name, kpis, threshold_hours=0.5):
     """
@@ -103,8 +119,10 @@ def render_floating_notifications(asset_id=None):
         })
     notifs_json = json.dumps(notifs_data, ensure_ascii=False)
 
+    import time
     js = f"""
     <script>
+    // UUID Refresh: {time.time()}
     (function() {{
         var p  = window.parent;
         var pd = p.document;
@@ -246,12 +264,15 @@ def render_floating_notifications(asset_id=None):
     components.html(js, height=0)
 
 
-def render_alert_history_panel():
+def render_alert_history_panel(current_asset_id=None):
     """
     Panel plegable (expander) con el historial completo de todas las alertas IA de la sesión.
-    Muestra activas (con boton dismiss) y descartadas (en gris). Incluye botón de limpieza total.
+    Si provee current_asset_id, filtra solo para mostrar las del equipo actual.
     """
     all_n = st.session_state.ia_notifications
+    if current_asset_id:
+        all_n = [n for n in all_n if n["asset_id"] == current_asset_id]
+        
     dismissed = st.session_state.dismissed_ids
     active_n = [n for n in all_n if n["id"] not in dismissed]
     disc_n = [n for n in all_n if n["id"] in dismissed]
@@ -259,7 +280,7 @@ def render_alert_history_panel():
     label = f"🔔 Centro de Alertas IA — {len(active_n)} activa(s) | {len(all_n)} en historial"
     with st.expander(label, expanded=False):
         if not all_n:
-            st.info("No hay alertas IA registradas en esta sesión.")
+            st.info("No hay alertas IA registradas para este activo en esta sesión.")
             return
 
         # ---- Botones de descarte rápido (dentro del expander = aislados del layout) ----

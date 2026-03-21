@@ -72,23 +72,19 @@ api = get_api()
 
 @st.cache_data(ttl=3600)
 def fetch_history(_api, asset, date_from, date_to):
-    try: return _api.get_condition_history(asset, date_from, date_to)
-    except: return {}
+    return _api.get_condition_history(asset, date_from, date_to)
 
 @st.cache_data(ttl=3600)
 def fetch_events(_api, asset, date_from, date_to):
-    try: return _api.search_events(asset, start_time=date_from, end_time=date_to)
-    except: return {}
+    return _api.search_events(asset, start_time=date_from, end_time=date_to)
 
 @st.cache_data(ttl=3600)
 def fetch_details(_api, asset):
-    try: return _api.get_asset_details(asset)
-    except: return {}
+    return _api.get_asset_details(asset)
 
 @st.cache_data(ttl=3600)
 def fetch_fft(_api, asset):
-    try: return _api.get_last_fft(asset)
-    except: return {}
+    return _api.get_last_fft(asset)
 
 KNOWN_ASSETS = {
     "105727": "Molino 1 S12",
@@ -145,6 +141,22 @@ except Exception as e:
 
 def render_kiosk_mode():
     st.markdown("<h1 style='text-align: center; color: white;'>📺 Panel de Monitoreo General</h1>", unsafe_allow_html=True)
+    
+    # Auto-Rotación Asíncrona (No Bloqueante)
+    if not st.session_state.kiosk_paused:
+        from streamlit_autorefresh import st_autorefresh
+        count = st_autorefresh(interval=30000, limit=None, key="kioskotimer")
+        last_count = st.session_state.get('last_kiosk_tick', -1)
+        
+        # Si count < last_count, el componente se desmontó (usuario cambió de pestaña). Sincronizamos:
+        if count < last_count:
+            last_count = -1
+            st.session_state.last_kiosk_tick = -1
+            
+        # Si el tick del reloj subió, incrementamos el carrusel ANTES de renderizar la página
+        if count > last_count:
+            st.session_state.kiosk_index = (st.session_state.kiosk_index + 1) % len(KNOWN_ASSETS)
+            st.session_state.last_kiosk_tick = count
     
     # Grid de Semáforo Global en la parte superior
     st.markdown("---")
@@ -389,20 +401,15 @@ def render_kiosk_mode():
         st.warning("No se pudo obtener el historial de salud para este activo.")
 
     # Panel de historial de alertas IA (plegable, antes del auto-refresh)
-    nm.render_alert_history_panel()
+    nm.render_alert_history_panel(current_asset)
 
-    # 4. Auto-Refresco de Pantalla
     if not st.session_state.kiosk_paused:
-        progress_bar = st.empty()
-        for i in range(30):
-            progress_bar.progress((i+1)/30.0, text=f"Auto-Rotación en {30-i} segundos... (Da clic en Pausar si deseas detener)")
-            time.sleep(1)
-        st.session_state.kiosk_index = (st.session_state.kiosk_index + 1) % len(KNOWN_ASSETS)
-        st.rerun()
+        st.info("⏱️ Modo Carrusel Automático Activado (Rotando cada 30 segundos...) - Navegación completamente libre para clics inmediatos.")
 
 
 
 def render_manual_mode():
+    nm.clear_floating_notifications()
     st.title("⚡ ABB Powertrain API - Análisis Manual")
     selected_asset_id = st.sidebar.selectbox("🎯 Activo a analizar a fondo", list(KNOWN_ASSETS.keys()), format_func=lambda x: f"{KNOWN_ASSETS[x]} (ID: {x})")
     

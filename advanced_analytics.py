@@ -259,6 +259,10 @@ def analyze_volatility(df_trends, current_value, kpi_name):
     # CÁLCULO DE BANDAS ESTADÍSTICAS AVANZADAS (BOLLINGER)
     # Rellena una media móvil temporal ajustada a ventanas de 12 horas 
     # =========================================================================
+    if len(df) < 3:
+        # Prevenir NaN y fallos si el ABB API envió datos raquíticos en este intervalo
+        return False, [], df.reset_index()
+        
     # Se usa min_periods=2 garantizando que con mínimo 2 puntos calcule varianza
     rolling_mean = df['value'].rolling('12h', min_periods=2).mean()
     rolling_std = df['value'].rolling('12h', min_periods=2).std()
