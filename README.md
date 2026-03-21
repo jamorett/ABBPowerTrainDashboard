@@ -90,7 +90,7 @@ if count > last_count:
     # Se procesa en cascada antes del render sin necesidad de invocar st.rerun()
 ```
 **Anatomía del Contador:** Cuando el `count` web alcanza cada umbral de 30,000 milisegundos, despierta al orquestador `app.py`. Comparamos la memoria Python (`last_count`) con la memoria Web (`count`). Solo cuando un tic real haya pasado matemática y físicamente, la aguja avanza gracias al operador Módulo `% len(KNOWN_ASSETS)`, forzando al índice principal a ciclar del equipo N=13 hacia el equipo N=0 infinita y cíclicamente.
-*Arreglo Especial de Navegación:* Si el operador salta a la pestaña "Análisis Manual", Streamlit destruye el Iframe web invisible en el DOM. Al regresar, el reloj web (`count`) comienza desde el segundo "Cero", pero la memoria de Python esperaba que el reloj siguiera contando desde donde se quedó. Si Python pide el `tick 8` pero recibe un `0`, la validación mágica `if count < last_count:` asume un cambio de "Context Switch" y se auto-calibra, reiniciando todo para evitar que el carrusel se rompa, detenga, o espere minutos por los "ticks perdidos".
+*Arreglo Especial de Navegación:* Si el operador salta a la pestaña "Análisis Manual", Streamlit destruye el Iframe web invisible en el DOM. Al regresar, el reloj web (`count`) comienza desde el segundo "Cero", pero la memoria de Python esperaba que el reloj siguiera contando desde donde se quedó. Si Python pide el `tick 8` pero recibe un `0`, la validación de estado `if count < last_count:` asume un cambio de contexto (Context Switch) y se auto-calibra, reiniciando todo para evitar que el carrusel se rompa, detenga, o espere minutos por los "ticks perdidos".
 
 ### 1.5 Motor de Ruteo e Inteligencia de Algoritmo de Visualización
 `app.py` divide su renderizado llamando a la función `render_kiosk_mode()` o `render_manual_mode()` dependiendo de la selección en la barra lateral (Sidebar). 
@@ -161,7 +161,7 @@ En vez de pedir un token inútilmente al encender el servidor, la clase intercep
 **Radiografía de la táctica defensiva:**
 1. **Delegación de Autoridad (`grant_type="api_key"`):** Intercambiamos físicamente el Largo String Estático (`ABB_API_KEY`) provisto por ABB por un JWT (JSON Web Token) frágil y seguro (`access_token`).
 2. **Cronómetro Fatal Invertido:** En la penúltima línea se detecta el margen de $5 \text{ minutos} = 300 \text{ segundos}$. El servicio jamás confía en el `expires_in` de 3600 segundos oficial. Al programar la variable `token_expires_at` bajo una penalización de -300s, se garantiza matemáticamente que cuando queden exactamente 5 minutos de vida, el siguiente Kiosko que solicite datos detonará silenciosamente una re-negociación POST de un token nuevo. La API de ABB nunca estrangulará (HTTP 401 Unauthorized) la petición original de telemetría.
-3. **Inyección en Tiempo de Compilación (`_update_headers`)**: En lugar de inyectar el Bearer y la versión de la API explícitamente en el endpoint, el método modifica la estructura atómica de `self.session.headers.update(...)`. Desde ese momento, cualquier método subsiguiente de la clase `ApiService` está mágicamente autorizado.
+3. **Inyección en Tiempo de Compilación (`_update_headers`)**: En lugar de inyectar el token Bearer y la versión de la API explícitamente en cada endpoint, el método modifica la estructura atómica de `self.session.headers.update(...)`. Desde ese momento, cualquier método subsiguiente de la clase `ApiService` cuenta con autorización nativa a nivel de cabecera HTTP.
 
 ### 2.3 Router de Micro-Endpoints de la API
 ABB Powertrain no es un repositorio monolítico; divide dramáticamente su base de datos. Para lidiar con esto, el módulo bifurca sus cimientos en:
@@ -210,8 +210,8 @@ rolling_std  = df['value'].rolling('12h', min_periods=2).std()
 df['Bollinger_Upper'] = rolling_mean + (2.5 * rolling_std)
 ```
 **Matemática en Acción:**
-1. **$N \ge 2$:** La inyección `min_periods=2` es una salvaguarda de prevención matemática ante el error de "NaN por división nula" que destrozaría la RAM cuando ABB no ha enviado los suficientes vectores inalámbricos.
-2. **Confianza del $98.7\%$ ($2.5\sigma$):** La variable se evalúa constantemente contra su propio pasado estandarizado $+2.5 \sigma$. Todo equipo que exceda esa franja está cometiendo una locura estadística.
+1. **$N \ge 2$:** La inyección `min_periods=2` asegura solidez algorítmica ante el error de "NaN por división nula" que afectaría la memoria del servidor cuando ABB no ha enviado los suficientes datos telemétricos.
+2. **Confianza del $98.7\%$ ($2.5\sigma$):** La variable se evalúa constantemente contra su propio pasado estandarizado $+2.5 \sigma$. Todo equipo que exceda esa franja presenta una desviación estadística crítica.
 3. **Piso Anti-Ruido (Noise Floor):** Motores inmaculados con vibración `$0.01 \text{ mm/s}$` a menudo oscilan a `$0.03 \text{ mm/s}$`. Estadísticamente eso es el $300\%$ de subida y rompería la varianza local, detonando falsas alarmas diarias. Para suprimir esto, la IA inyecta el **Piso Acústico Mínimo**:
 ```python
 # Exigir que la variación al menos supere el 5% de la señal real, o el 0.1 absoluto (lo mayor).
@@ -238,10 +238,10 @@ derivatives.sort()
 dy_dt = derivatives[len(derivatives) // 2]
 ```
 **Fisiología del Filtro:** 
-El código bloquea activamente la regla del falso arranque. Todo metal que pasa de apagado ($4^\circ C$ ó $0 \text{ mm/s}$) a encendido tendrá una derivada espantosa inicial (`Startup Acceleration`). Si los mínimos del DataFrame comprueban un encendido reciente, la máquina calla. 
-Si el motor descarta el `Startup`, e inyecta las derivadas de las últimas $4$ lecturas y **les calcula la mediana matemática** (para eliminar un error de red aleatorio de milisegundos), se dictamina la pendiente `dy/dt`. 
-- Si $\Delta T > 5^\circ C/\text{hora} \rightarrow$ Embalamiento Térmico Severo.
-- Si $\Delta V > 1.5\text{ mm/hora} \rightarrow$ Fricción o Choque Metálico Extremo.
+El código bloquea activamente la regla del arranque en frío. Toda máquina que pasa de estado de reposo ($4^\circ C$ ó $0 \text{ mm/s}$) a encendido tendrá una derivada transitoria artificialmente alta (`Startup Acceleration`). Si los mínimos del DataFrame comprueban un encendido reciente, el cálculo se omite. 
+Si el motor descarta el `Startup`, recolecta las derivadas de las últimas $4$ lecturas y **les calcula la mediana matemática** (para descartar fluctuaciones de red atípicas), se evalúa la pendiente final `dy/dt`. 
+- Si $\Delta T > 5^\circ C/\text{hora} \rightarrow$ Embalamiento Térmico Crítico.
+- Si $\Delta V > 1.5\text{ mm/hora} \rightarrow$ Fricción o Choque Metálico.
 
 ### 3.2 Inspector Espectral de Alta Precisión ISO (`analyze_fft`)
 El algoritmo es virtualmente un robot de Análisis de Vibraciones Categoría III, certificado lógicamente bajo la normatividad global ISO 13373-2 ($Diagnóstico por Análisis de Frecuencia$). Utiliza la extracción de vectores binarios devueltos por la API FFT de ABB y los secciona:
@@ -262,7 +262,7 @@ Si el armónico principal `1X` en algún cuadrante radial de la turbina rebasa $
 La IA calcula un bloque del $+5\%$ de rango en torno a $2 \times \text{FrecuenciaFundamental}$ ($2X$). Si la fuerza cinética transferida al 2X es matemáticamente superior al $50\%$ del 1X en el mismo plano dimensional, deduce pérdida angular o desplazamiento de acoplamientos.
 
 **✅ REGLA 3: Interferencia Magnética Trifásica (IEC 60034-14)**
-Cuestión hiper-frecuente en motores mal aislados. Generamos un `array` de frecuencias eléctricas $100\text{Hz}$ y $120\text{Hz}$ (El armónico de línea del país correspondiente al polo negativo+positivo de $50\text{Hz}$ o $60\text{Hz}$). Un pico electromagnético de alta velocidad de $+0.8\text{ mm/s}$ avisa que el estator o las barras del rotor en cortocircuito están temblando; algo invisible a simple vista.
+Problema frecuente en motores mal aislados. Generamos un arreglo de frecuencias eléctricas estándar ($100\text{Hz}$ y $120\text{Hz}$; el armónico de línea del país correspondiente a la red de $50\text{Hz}$ o $60\text{Hz}$). Un pico electromagnético predominante de $+0.8\text{ mm/s}$ indica irregularidades de inducción en el estator o barras del rotor en cortocircuito; detalles frecuentemente inadvertidos bajo supervisión humana básica.
 
 **✅ REGLA 4: Correlación Tridimensional Cruzada (ISO 13373-2 §7.3.2)**
 Rompe la evaluación mono-axis y contrasta dos arreglos distintos:
@@ -282,16 +282,16 @@ Si un motor empuja horizontalmente el eje axial en un impacto de más del $70\%$
 
 Streamlit, por diseño de su arquitectura web, renderiza los elementos HTML de forma estrictamente secuencial mediante bloques (Flexbox/Grid estáticos). Las notificaciones oficiales (`st.toast`, `st.warning`) sufren de limitaciones visuales, se apilan o desaparecen cuando el bucle de Python termina. 
 
-Para implementar el sistema de **Alertas Rojas IA de Supervivencia** y el "Centro de Alertas", tuvimos que hacer un 'Bypass' al flujo oficial y secuestrar el Modelo de Objetos del Documento (DOM) de la ventana del navegador utilizando JavaScript crudo inyectado mediante `components.html`.
+Para implementar las **Alertas Predictivas** superpuestas, fue necesario modificar programáticamente el Modelo de Objetos del Documento (DOM) de la ventana del navegador utilizando JavaScript puro inyectado a través de `components.html`.
 
-### 4.1 Inyección y Secuestro del Parent Frame
-Streamlit aísla los componentes inyectados dentro de Iframes de seguridad restringidos. `notification_manager.py` salta el Iframe apuntando al objeto superior en la jerarquía del browser (`window.parent.document`):
+### 4.1 Inyección en el Marco Superior (Parent Frame)
+Streamlit aísla de manera predeterminada los componentes inyectados dentro de "Iframes" restringidos. `notification_manager.py` aborda este aislamiento interactuando con el objeto raíz en la jerarquía abstracta del browser (`window.parent.document`):
 ```javascript
 (function() {
     var p  = window.parent;
     var pd = p.document;
 
-    // Destrucción Quirúrgica de instanciaciones previas para evitar clones
+    // Remoción controlada de instancias web previas para evitar duplicidad
     var old = pd.getElementById('ia-notif-root');
     if (old) old.remove();
 
@@ -311,20 +311,20 @@ def _make_id(asset_id, notif_type, message):
 ```
 Si el motor presenta el mismo armónico `1X` violento dictaminado por `advanced_analytics.py` cincuenta veces en los últimos 30 minutos, la alerta produce el mismo ID. El gestor lo reconoce dentro del Set de memorias de `st.session_state.ia_notifications` y bloquea inmediatamente la avalancha de spam a la pantalla del operador.
 
-### 4.3 Purgado Bi-Modal Automático (Cache Busting Anti-Flickering)
-Uno de los retos técnicos más graves de usar JavaScript para inyectar alertas fuera de Streamlit, es que al cambiar de Pestaña ("Kiosko" a "Análisis Manual"), Streamlit guarda el HTML en caché y lo "revive" como un zombi en vistas donde ya no es deseado, ensuciando la interfaz.
+### 4.3 Gestión Bi-Modal y Limpieza (Cache Busting Anti-Flickering)
+Uno de los retos técnicos de inyectar alertas programáticas es que, al cambiar de Pestaña ("Kiosko" a "Análisis Manual"), el renderizador web guarda el estado del HTML en caché y lo reactiva en forma de un artefacto residual (glitch) en pantallas donde debe estar inactivo, comprometiendo la limpieza visual del sistema.
 
-Resolvemos este bug utilizando una huella generacional continua (Continuous UNIX Timestamp):
+Resolvemos este comportamiento utilizando una huella generacional continua (Timestamp UNIX):
 ```python
     import time
     js = f"""
     <script>
-    // UUID Refresh Forzado: {time.time()}
+    // UUID Refresh Constante: {time.time()}
     (function() {{
         ...
 ```
-- **Por qué funciona:** Al incrustar literalmente el segundo actual (e.g., `1713459812.8391`) como texto nativo en la etiqueta `<script>`, el compilador VDOM de Streamlit examina el String en cada recarga de página y dice: "*Las letras cambiaron, esto no es el componente que almacené en RAM*". Streamlit es engañado para obligar al navegador del usuario a interpretar y ejecutar el bloque JavaScript el 100% de las veces en lugar de usar la memoria estática.
-- **La destructora Manual**: En el modo de Análisis Manual invocamos a `clear_floating_notifications()`, la cual lanza un micro-script (con este mismo UUID de `time.time()`) que únicamente ejecuta `window.parent.document.getElementById('ia-notif-root').remove()`. Aniquilando permanentemente las notificaciones del Kiosko de los ojos del usuario.
+- **Por qué funciona:** Al incrustar literalmente el segundo actual (e.g., `1713459812.8391`) en el cuerpo del `<script>`, el compilador evalúa el String en cada recarga de página y determina que es un componente nuevo perdiendo su referencia al bloque almacenado estáticamente. Streamlit es forzado entonces a obligar al navegador del usuario a interpretar y ejecutar el bloque JavaScript nuevo el 100% de las veces.
+- **Control Activo Manual**: Cuando en `app.py` se ingresa al modo de Análisis Manual se invoca `clear_floating_notifications()`. Esta función lanza un micro-script (con el mismo identificador UUID de tiempo) responsable que ejecutar internamente `window.parent.document.getElementById('ia-notif-root').remove()`. Removiendo dinámicamente cualquier notificación flotante heredada del Kiosko de la interfaz central del usuario.
 
 ---
 
