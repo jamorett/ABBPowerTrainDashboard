@@ -5,7 +5,11 @@ import plotly.graph_objects as go
 import datetime
 import time
 import extra_streamlit_components as stx
+import os
+from dotenv import load_dotenv
 
+# Cargar variables de entorno
+load_dotenv()
 # --- CONFIGURACION DE PAGINA ---
 st.set_page_config(page_title="ABB Powertrain Dashboard", layout="wide", initial_sidebar_state="collapsed", page_icon="⚡")
 
@@ -34,7 +38,10 @@ if not st.session_state.get('autenticado', False):
             password = st.text_input("Contraseña", type="password")
             
             if st.button("Iniciar Sesión", use_container_width=True, type="primary"):
-                if username == "APIABBDashboard" and password == "PowertrainABB24":
+                env_user = os.getenv("DASHBOARD_USERNAME")
+                env_pass = os.getenv("DASHBOARD_PASSWORD")
+                
+                if env_user and env_pass and username == env_user and password == env_pass:
                     st.session_state.autenticado = True
                     # Guardar cookie que expira en 10 años (3650 días)
                     cookie_manager.set("abb_dashboard_auth", "true", expires_at=datetime.datetime.now() + datetime.timedelta(days=3650))
