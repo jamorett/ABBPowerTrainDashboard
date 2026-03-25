@@ -609,15 +609,19 @@ def render_manual_mode():
                                 df_harm["value"] = pd.to_numeric(df_harm["value"], errors="coerce")
                                 df_harm = df_harm.sort_values(by="value", ascending=True)
 
-                                # Etiqueta enriquecida usando salto HTML nativo (<br> en lugar de \n)
-                                df_harm["label"] = df_harm.apply(
-                                    lambda r: f"{r['name']}<br>{r['value']:.1f} Hz"
-                                              if pd.notna(r.get("value")) else r["name"],
-                                    axis=1
-                                )
+                                # Generar etiquetas únicas preventivas contra datos nulos de la API
+                                def make_label(row, i):
+                                    n = row.get("name")
+                                    v = row.get("value")
+                                    name_str = str(n) if pd.notna(n) and n else f"Pico {i+1}"
+                                    if pd.notna(v) and float(v) > 0:
+                                        return f"{name_str}<br>{v:.1f} Hz"
+                                    return name_str
+
+                                df_harm["label"] = [make_label(row, i) for i, row in enumerate(df_harm.to_dict('records'))]
                             else:
                                 df_harm = df_harm.sort_values(by="name", ascending=True)
-                                df_harm["label"] = df_harm["name"]
+                                df_harm["label"] = [str(n) if pd.notna(n) and n else f"Pico {i+1}" for i, n in enumerate(df_harm["name"])]
 
                             if not df_harm.empty:
                                 fig_harm = px.bar(
@@ -626,7 +630,8 @@ def render_manual_mode():
                                     color="magnitude",
                                     color_continuous_scale="Inferno",
                                     labels={"label": "Armónico", "magnitude": "Magnitud"},
-                                    text="magnitude"
+                                    text="magnitude",
+                                    barmode="group"
                                 )
                                 fig_harm.update_traces(
                                     texttemplate="%{text:.3f}",
