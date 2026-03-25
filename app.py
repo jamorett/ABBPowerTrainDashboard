@@ -604,14 +604,19 @@ def render_manual_mode():
                             df_harm["magnitude"] = pd.to_numeric(df_harm["magnitude"], errors="coerce")
                             df_harm = df_harm.dropna(subset=["magnitude"])
 
-                            # Etiqueta enriquecida: nombre + frecuencia si está disponible
+                            # Transformación Data Science: castear a float y ordenar lógicamente el espectro
                             if "value" in df_harm.columns:
+                                df_harm["value"] = pd.to_numeric(df_harm["value"], errors="coerce")
+                                df_harm = df_harm.sort_values(by="value", ascending=True)
+
+                                # Etiqueta enriquecida usando salto HTML nativo (<br> en lugar de \n)
                                 df_harm["label"] = df_harm.apply(
-                                    lambda r: f"{r['name']}\n{r['value']:.1f} Hz"
+                                    lambda r: f"{r['name']}<br>{r['value']:.1f} Hz"
                                               if pd.notna(r.get("value")) else r["name"],
                                     axis=1
                                 )
                             else:
+                                df_harm = df_harm.sort_values(by="name", ascending=True)
                                 df_harm["label"] = df_harm["name"]
 
                             if not df_harm.empty:
@@ -619,7 +624,7 @@ def render_manual_mode():
                                     df_harm, x="label", y="magnitude",
                                     title="Magnitud de Armónicos Dominantes",
                                     color="magnitude",
-                                    color_continuous_scale="Blues",
+                                    color_continuous_scale="Inferno",
                                     labels={"label": "Armónico", "magnitude": "Magnitud"},
                                     text="magnitude"
                                 )
