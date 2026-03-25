@@ -66,9 +66,9 @@ def analyze_fft(fft_raw):
             # Umbral: mag_1x > 1.5 (aprox. Zona C de ISO 10816-3 para máquinas medianas)
             if mag_1x > 1.5:
                 alerts.append(
-                    f"[FFT {axis_name}] 💥 Desbalanceo Severo detectado — "
-                    f"Pico 1X en {f_1x:.1f} Hz con magnitud {mag_1x:.2f}. "
-                    f"(ISO 10816-3: supera umbral Zona C)"
+                    f"[FFT {axis_name}] 💥 Dominancia 1X Anómala — "
+                    f"Pico 1X en {f_1x:.1f} Hz ({mag_1x:.2f}). "
+                    f"Indicador primario de Desbalanceo de Masa (Ref. ISO 20816)"
                 )
 
             # ── REGLA 2: Desalineación por armónico intra-eje (ISO 13373-2 §7.3) ───
@@ -76,7 +76,7 @@ def analyze_fft(fft_raw):
             if mag_2x > (0.5 * mag_1x):
                 alerts.append(
                     f"[FFT {axis_name}] 🗜️ Señal de Desalineación — "
-                    f"Armónico 2X en {f_2x:.1f} Hz supera el 50% del 1X "
+                    f"Armónico Dominante 2X en {f_2x:.1f} Hz supera el 50% del 1X "
                     f"({mag_2x:.2f} vs {mag_1x:.2f}). (ISO 13373-2 §7.3)"
                 )
 
@@ -91,9 +91,9 @@ def analyze_fft(fft_raw):
                     mag_el = df_fft.loc[idx_el, 'magnitude']
                     if mag_el > 0.8:
                         alerts.append(
-                            f"[FFT {axis_name}] ⚡ Interferencia Eléctrica — "
-                            f"Pico detectado en {f_linea} Hz (2× red) con magnitud {mag_el:.2f}. "
-                            f"Revisar estator o barra de rotor. (IEC 60034-14)"
+                            f"[FFT {axis_name}] ⚡ Anomalía Electromagnética — "
+                            f"Frecuencia de paso de polos detectada en {f_linea} Hz ({mag_el:.2f}). "
+                            f"Riesgo de Excentricidad Estatórica. (IEC 60034-14)"
                         )
 
             # ── REGLA 5: Sub-armónico 0.5X — Holgura / Oil Whirl (ISO 13373-2 §7.4) ─
@@ -110,10 +110,9 @@ def analyze_fft(fft_raw):
                 f_05x   = df_fft.loc[idx_05x, 'frequency']
                 if mag_05x > (0.25 * mag_1x):
                     alerts.append(
-                        f"[FFT {axis_name}] 🔩 Sub-armónico detectado (0.5X) — "
-                        f"Pico en {f_05x:.1f} Hz con magnitud {mag_05x:.2f} "
-                        f"({mag_05x/mag_1x*100:.0f}% del 1X). "
-                        f"Posible holgura mecánica o inestabilidad de cojinete. "
+                        f"[FFT {axis_name}] 🔩 Sub-armónico exacto detectado (0.5X) — "
+                        f"Pico en {f_05x:.1f} Hz ({mag_05x/mag_1x*100:.0f}% del 1X). "
+                        f"Riesgo de Fricción (Rubbing) rotórica o Holgura Mecánica Severa. "
                         f"(ISO 13373-2 §7.4)"
                     )
 
@@ -139,9 +138,9 @@ def analyze_fft(fft_raw):
             if harmonics_present >= 2:
                 # 3 o más armónicos simultáneos (1X + al menos 2X y 3X) = patrón de holgura
                 alerts.append(
-                    f"[FFT {axis_name}] 🔧 Patrón de Holgura Estructural — "
-                    f"Familia de armónicos activa: 1X={mag_1x:.2f}, {', '.join(harmonic_details)}. "
-                    f"Verificar fijación de base, tornillería y chumaceras. "
+                    f"[FFT {axis_name}] 🔧 Patrón de Holgura Estructural Tipo A — "
+                    f"Múltiples armónicos dominantes: 1X={mag_1x:.2f}, {', '.join(harmonic_details)}. "
+                    f"Verificar fijación de base y tornillería. "
                     f"(ISO 13373-2 §7.5 Patrón A5)"
                 )
 
