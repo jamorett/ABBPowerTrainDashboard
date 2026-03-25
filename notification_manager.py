@@ -2,6 +2,10 @@ import streamlit as st
 import datetime
 import hashlib
 
+def get_ecuador_time():
+    """Retorna la hora actual en Ecuador (UTC-5)."""
+    return datetime.datetime.utcnow() - datetime.timedelta(hours=5)
+
 def init_notification_state():
     """Inicializar session state para el sistema de alertas IA."""
     if "ia_notifications" not in st.session_state:
@@ -35,7 +39,7 @@ def add_notification(asset_id, asset_name, notif_type, message, severity="Warnin
         "type": notif_type,
         "message": message,
         "severity": severity,
-        "timestamp": datetime.datetime.now().strftime("%H:%M | %d/%m")
+        "timestamp": get_ecuador_time().strftime("%H:%M | %d/%m")
     })
 
 def clear_floating_notifications():
@@ -66,7 +70,7 @@ def check_persistent_breach(asset_id, asset_name, kpis, threshold_hours=0.5):
         def translate_kpi_name(x): return x
         def translate_condition(x): return x
 
-    now = datetime.datetime.now()
+    now = get_ecuador_time()
     for k in kpis:
         kpi_name = k.get("name", "")
         cond = k.get("currentCondition", "")
