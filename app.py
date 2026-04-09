@@ -59,6 +59,7 @@ import advanced_analytics
 import translator as tr
 import notification_manager as nm
 
+
 # --- CONFIGURACION DE PAGINA ---
 st.set_page_config(page_title="ABB Powertrain Dashboard", layout="wide", initial_sidebar_state="collapsed", page_icon="⚡")
 
@@ -71,11 +72,21 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
+def sanitize_timestamp(ts):
+    """Reemplaza timestamps por defecto (1980/1970) por un mensaje descriptivo."""
+    if not ts or not isinstance(ts, str):
+        return ts
+    if ts.startswith("1980") or ts.startswith("1970"):
+        return "🕒 No Sincronizado"
+    return ts
+
 @st.cache_resource
 def get_api():
     return ApiService()
 
 api = get_api()
+
+
 
 @st.cache_data(ttl=3600)
 def fetch_history(_api, asset, date_from, date_to):
@@ -224,6 +235,8 @@ def render_kiosk_mode():
         # Detectar KPIs en umbral critico sostenido
         nm.check_persistent_breach(current_asset, current_name, kpis)
         
+
+        
         col1, col2 = st.columns([1, 4])
         cond_color = "🟢" if current_cond in ["Good", "Normal", "OK"] else ("🟡" if current_cond in ["Tolerable", "Warning"] else ("🔴" if current_cond in ["Alarm", "Error", "Poor", "Bad", "Critical"] else "⚪"))
         col1.metric("Condición Integral", f"{cond_color} {tr.translate_condition(current_cond)}")
@@ -237,8 +250,12 @@ def render_kiosk_mode():
         event_items = []
         if isinstance(api_items, list):
             for ev in api_items:
+                raw_dt = ev.get("deviceTimestamp")
+                raw_st = ev.get("timestamp")
+                # Fallback: Usar hora de servidor si la de dispositivo es 1980/1970
+                final_ts = raw_st if (not raw_dt or raw_dt.startswith("1980") or raw_dt.startswith("1970")) else raw_dt
                 event_items.append({
-                    "timestamp": ev.get("deviceTimestamp", ev.get("timestamp")),
+                    "timestamp": sanitize_timestamp(final_ts),
                     "eventType": f"Evento ABB ({ev.get('sourceCode', 'Sistema')})",
                     "severity": tr.translate_severity(ev.get("severityCode", "Unknown")),
                     "message": tr.translate_message(ev.get("messageText", "Sin mensaje"))
@@ -250,7 +267,7 @@ def render_kiosk_mode():
                     event_items.append({
                         "eventType": f"Alarma de Umbral Roto ({k.get('name')})",
                         "severity": tr.translate_severity(ce.get("type", "Warning")),
-                        "timestamp": ce.get("timestamp"),
+                        "timestamp": sanitize_timestamp(ce.get("timestamp")),
                         "message": tr.translate_message(f"KPI {k.get('name')} reporta {ce.get('type')}: {ce.get('valueDouble')}")
                     })
         
@@ -271,7 +288,8 @@ def render_kiosk_mode():
         # 2.B Pre-procesamiento Inteligencia Matemática (FFT y Volatilidad)
         try:
             fft_raw = fetch_fft(api, current_asset)
-            fft_alerts = advanced_analytics.analyze_fft(fft_raw)
+            op_hz = advanced_analytics.extract_operating_hz(kpis, fft_raw)
+            fft_alerts = advanced_analytics.analyze_fft(fft_raw, operating_hz=op_hz)
             for fa in fft_alerts:
                 sev = "Error" if "Posible" not in fa else "Warning"
                 event_items.append({
@@ -446,7 +464,10 @@ def render_manual_mode():
             if history:
                 overall_cond = history.get("currentOverallCondition", "Desconocida")
                 status_color = "🟢" if overall_cond in ["Good", "Normal", "OK"] else ("🟡" if overall_cond in ["Tolerable", "Warning"] else ("🔴" if overall_cond in ["Alarm", "Error", "Poor", "Bad", "Critical"] else "⚪"))
+                
+
                 st.metric(label="Condición Integral del Activo", value=f"{status_color} {tr.translate_condition(overall_cond)}")
+                    
                 if kpis:
                     st.markdown("### Resumen de Indicadores (KPIs)")
                     cols = st.columns(3)
@@ -517,8 +538,12 @@ def render_manual_mode():
             items = []
             if isinstance(api_items, list):
                 for ev in api_items:
+                    raw_dt = ev.get("deviceTimestamp")
+                    raw_st = ev.get("timestamp")
+                    # Fallback
+                    final_ts = raw_st if (not raw_dt or raw_dt.startswith("1980") or raw_dt.startswith("1970")) else raw_dt
                     items.append({
-                        "timestamp": ev.get("deviceTimestamp", ev.get("timestamp")),
+                        "timestamp": sanitize_timestamp(final_ts),
                         "eventType": f"Evento ABB ({ev.get('sourceCode', 'Sistema')})",
                         "severity": tr.translate_severity(ev.get("severityCode", "Unknown")),
                         "message": tr.translate_message(ev.get("messageText", "Sin mensaje"))
@@ -527,7 +552,12 @@ def render_manual_mode():
             for k in kpis:
                 if "conditionEvents" in k and k["conditionEvents"]:
                     for ce in k["conditionEvents"]:
-                        items.append({"eventType": f"Alarma KPI: {k.get('name')}", "severity": tr.translate_severity(ce.get("type", "Warning")), "timestamp": ce.get("timestamp"), "message": f"Umbral Roto: {ce.get('valueDouble')}"})
+                        items.append({
+                            "eventType": f"Alarma KPI: {k.get('name')}", 
+                            "severity": tr.translate_severity(ce.get("type", "Warning")), 
+                            "timestamp": sanitize_timestamp(ce.get("timestamp")), 
+                            "message": f"Umbral Roto: {ce.get('valueDouble')}"
+                        })
             if items:
                 st.dataframe(pd.DataFrame(items), use_container_width=True)
             else:
@@ -544,7 +574,8 @@ def render_manual_mode():
                     # ── Espectro por eje de sensor ──────────────────────────────────
                     if "spectrum" in fft_raw and "sensors" in fft_raw:
                         # Obtener picos detectados por nuestro motor analítico
-                        fft_peaks = advanced_analytics.get_fft_peaks(fft_raw)
+                        op_hz = advanced_analytics.extract_operating_hz(kpis, fft_raw)
+                        fft_peaks = advanced_analytics.get_fft_peaks(fft_raw, operating_hz=op_hz)
                         for sensor in fft_raw["sensors"]:
                             for axis_data in sensor.get("dataValues", []):
                                 axis_name = axis_data.get("sensorAxisName", "Desconocido")
