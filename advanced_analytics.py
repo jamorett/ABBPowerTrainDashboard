@@ -3,7 +3,39 @@ import numpy as np
 import scipy.signal as signal
 import datetime
 
-def analyze_fft(fft_raw):
+def extract_operating_hz(kpis, fft_raw=None):
+    """
+    Extrae dinámicamente la frecuencia de operación (en Hz) a partir de los KPIs
+    del motor (velocidad, frecuencia, etc.) o del objeto FFT.
+    Retorna la frecuencia en Hz, 0.0 si el equipo está apagado, o None si no hay datos.
+    """
+    if kpis:
+        for k in kpis:
+            name = k.get("name", "").lower()
+            if any(keyword in name for keyword in ["speed", "velocity", "frecuencia", "frequency", "velocidad", "rpm"]):
+                unit = k.get("unit", "").lower()
+                if "trend" in k and len(k["trend"]) > 0:
+                    last_val = k["trend"][-1].get("value", 0)
+                    if last_val > 0:
+                        if "rpm" in unit:
+                            return last_val / 60.0
+                        elif "hz" in unit:
+                            return last_val
+                    elif last_val == 0:
+                        # Equipo apagado explícitamente
+                        return 0.0
+
+    # Fallback to FFT metadata if KPIs fail
+    if fft_raw and fft_raw.get("speed"):
+        speed = fft_raw.get("speed")
+        if speed > 0: 
+            # ABB Powertrain API siempre reporta el 'speed' del FFT en RPM.
+            # Lo dividimos por 60 para convertirlo exactamente a Hz.
+            return speed / 60.0
+            
+    return None
+
+def analyze_fft(fft_raw, operating_hz=None):
     """
     Analiza el último espectro FFT buscando picos de armónicos ISO y fallas eléctricas.
     Aplica análisis por eje individual (Reglas 1-3) y análisis cruzado multi-eje (Regla 4).
@@ -30,8 +62,14 @@ def analyze_fft(fft_raw):
 
             axis_name = axis_data.get("sensorAxisName", "Desconocido")
 
-            # Ventana 20-35 Hz para el 1X (evita contaminación eléctrica de 50/60 Hz)
-            window_1x = df_fft[(df_fft['frequency'] >= 20) & (df_fft['frequency'] <= 35)]
+            # Ventana para el 1X (dinámica si hay datos, si no fallback 20-35 Hz)
+            if operating_hz is not None:
+                if operating_hz == 0:
+                    continue  # Máquina apagada, ignorar ruido
+                window_1x = df_fft[(df_fft['frequency'] >= operating_hz * 0.85) & (df_fft['frequency'] <= operating_hz * 1.15)]
+            else:
+                window_1x = df_fft[(df_fft['frequency'] >= 20) & (df_fft['frequency'] <= 35)]
+                
             if window_1x.empty:
                 continue
 
@@ -81,9 +119,11 @@ def analyze_fft(fft_raw):
                 )
 
             # ── REGLA 3: Interferencia Eléctrica (IEC 60034-14) ─────────────────────
-            # Picos en 100/120 Hz indican vibración electromagnética de la red
-            # (2 × frecuencia de línea: 2×50=100 Hz o 2×60=120 Hz)
-            for f_linea in [100, 120]:
+            # Picos en 2x la frecuencia de línea indican vibración electromagnética de la red.
+            line_freq_api = fft_raw.get("lineFrequency")
+            f_electricas = [line_freq_api * 2] if (line_freq_api and line_freq_api > 0) else [100, 120]
+            
+            for f_linea in f_electricas:
                 window_el = df_fft[(df_fft['frequency'] >= f_linea - 1.5) &
                                    (df_fft['frequency'] <= f_linea + 1.5)]
                 if not window_el.empty:
@@ -92,7 +132,7 @@ def analyze_fft(fft_raw):
                     if mag_el > 0.8:
                         alerts.append(
                             f"[FFT {axis_name}] ⚡ Anomalía Electromagnética — "
-                            f"Frecuencia de paso de polos detectada en {f_linea} Hz ({mag_el:.2f}). "
+                            f"Frecuencia de paso de polos detectada en {f_linea:.1f} Hz ({mag_el:.2f}). "
                             f"Riesgo de Excentricidad Estatórica. (IEC 60034-14)"
                         )
 
@@ -179,7 +219,7 @@ def analyze_fft(fft_raw):
     return list(dict.fromkeys(alerts))
 
 
-def get_fft_peaks(fft_raw):
+def get_fft_peaks(fft_raw, operating_hz=None):
     """
     Extrae las coordenadas de los picos detectados (1X, 2X, Electrico) para anotar visualmente
     en las graficas del espectro FFT del Tab de Analisis Manual.
@@ -201,7 +241,13 @@ def get_fft_peaks(fft_raw):
 
             peaks = []
             # 1X  — frecuencia fundamental
-            w1x = df_fft[(df_fft['frequency'] >= 20) & (df_fft['frequency'] <= 35)]
+            if operating_hz is not None:
+                if operating_hz == 0:
+                    continue  # Equipo apagado
+                w1x = df_fft[(df_fft['frequency'] >= operating_hz * 0.85) & (df_fft['frequency'] <= operating_hz * 1.15)]
+            else:
+                w1x = df_fft[(df_fft['frequency'] >= 20) & (df_fft['frequency'] <= 35)]
+                
             if not w1x.empty:
                 idx1x = w1x['magnitude'].idxmax()
                 f1x = df_fft.loc[idx1x, 'frequency']
@@ -219,15 +265,18 @@ def get_fft_peaks(fft_raw):
                         if m2x >= 0.1:
                             peaks.append((df_fft.loc[idx2x, 'frequency'], m2x, '2X'))
 
-            # Frecuencias electricas 100 / 120 Hz
-            for f_line in [100, 120]:
+            # Frecuencias electricas dinámicas (2x f_line)
+            line_freq_api = fft_raw.get("lineFrequency")
+            f_electricas = [line_freq_api * 2] if (line_freq_api and line_freq_api > 0) else [100, 120]
+            
+            for f_line in f_electricas:
                 wel = df_fft[(df_fft['frequency'] >= f_line - 1.5) &
                              (df_fft['frequency'] <= f_line + 1.5)]
                 if not wel.empty:
                     idxel = wel['magnitude'].idxmax()
                     mel = df_fft.loc[idxel, 'magnitude']
                     if mel >= 0.3:
-                        peaks.append((f_line, mel, f'~{f_line}Hz'))
+                        peaks.append((f_line, mel, f'~{f_line:.1f}Hz'))
 
             if peaks:
                 result[axis_name] = peaks
